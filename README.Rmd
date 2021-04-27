@@ -33,7 +33,7 @@ This package was built recently so it's highly recommended to be on version 4 of
 
 ## How to Use
 
-```{r echo = FALSE}
+```{r}
 require(reasyeda)
 
 #Load penguins dataset

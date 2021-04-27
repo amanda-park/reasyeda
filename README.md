@@ -26,7 +26,15 @@ version 4 of R.
 
 ## How to Use
 
-    #> Loading required package: reasyeda
+``` r
+require(reasyeda)
+#> Loading required package: reasyeda
+
+#Load penguins dataset
+data(penguins, package = "modeldata")
+
+#shinyEDA(penguins)
+```
 
 Upon opening the shiny app there will be 5 tabs:
 
