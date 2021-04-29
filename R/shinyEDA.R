@@ -11,6 +11,14 @@
 #'
 #' @importFrom magrittr "%>%"
 
+colorSH <- c("#0072CE", "#009A44", "#002855", "#00abc8", "#65baaf")
+colorSets <- c("Set2", "Set1", "Set3",
+          "Pastel2", "Pastel3", "Dark2", "Paired",
+          "RdYlBu", "PuOr", "PRGn", "PiYG", "BrGB",
+          "Spectral", "YlGnBu", "YlGn", "RdPu", "Reds",
+          "PuBuGn", "Oranges", "OrRd", "Greys", "Greens",
+          "GnBu")
+
 shinyEDA <- function(data) {
   # Define UI for application that draws a histogram
   ui <- shinydashboard::dashboardPage(
@@ -407,63 +415,7 @@ shinyEDA <- function(data) {
       selectInput(
         inputId = "tf_color",
         label = "Color",
-        choices = c("royalblue", "tomato4", "darkorange", "chocolate",
-                    "darkgoldenrod", "yellow4",
-                    "green4","darkorchid4", "lightpink4", "darkgray",
-                    "black", "gray", "white", "#1f5448", "#5f846b",
-                    "#96ad92", "#96ad92", "#b5c762",
-                    "#c7d7ca",
-                    "#d3e0d5",
-                    "#326f48",
-                    "#699269",
-                    "#89b284",
-                    "#a9cd9c",
-                    "#bed9ac",
-                    "#cde0b8",
-                    "#909c4d",
-                    "#a1c47c",
-                    "#c1d77e",
-                    "#cbe670",
-                    "#cedc00",
-                    "#e0e721",
-                    "#fece37",
-                    "#ffda67",
-                    "#e79218",
-                    "#f58f0e",
-                    "#6c3279",
-                    "#981d97",
-                    "#c73c46",
-                    "#d05b56",
-                    "#f25240",
-                    "#8c7d58",
-                    "#b9aa7e",
-                    "#d6cda6",
-                    "#313c44",
-                    "#6a6f71",
-                    "#8e8e90",
-                    "#b3b7ad",
-                    "#ced0ca",
-                    "#e0e0dc",
-                    "#4f6e84",
-                    "#6e889b",
-                    "#899daa",
-                    "#bac2c4",
-                    "#cbd1d2",
-                    "#081a42",
-                    "#05206f",
-                    "#224d8c",
-                    "#2655b0",
-                    "#8190c8",
-                    "#b6bfda",
-                    "#00708e",
-                    "#00737f",
-                    "#00a0aa",
-                    "#5aa096",
-                    "#00557f",
-                    "#00aa7f",
-                    "#1d7576",
-                    "#009a44"
-        )
+        choices = colorSH
       )
     })
 
@@ -482,61 +434,7 @@ shinyEDA <- function(data) {
       selectInput(
         inputId = "color",
         label = "Bar Color",
-        choices = c("royalblue", "tomato4", "darkorange", "chocolate", "darkgoldenrod", "yellow4",
-                    "green4","darkorchid4", "lightpink4", "darkgray",
-                    "black", "gray", "white", "#1f5448", "#5f846b",
-                    "#96ad92", "#96ad92", "#b5c762",
-                    "#c7d7ca",
-                    "#d3e0d5",
-                    "#326f48",
-                    "#699269",
-                    "#89b284",
-                    "#a9cd9c",
-                    "#bed9ac",
-                    "#cde0b8",
-                    "#909c4d",
-                    "#a1c47c",
-                    "#c1d77e",
-                    "#cbe670",
-                    "#cedc00",
-                    "#e0e721",
-                    "#fece37",
-                    "#ffda67",
-                    "#e79218",
-                    "#f58f0e",
-                    "#6c3279",
-                    "#981d97",
-                    "#c73c46",
-                    "#d05b56",
-                    "#f25240",
-                    "#8c7d58",
-                    "#b9aa7e",
-                    "#d6cda6",
-                    "#313c44",
-                    "#6a6f71",
-                    "#8e8e90",
-                    "#b3b7ad",
-                    "#ced0ca",
-                    "#e0e0dc",
-                    "#4f6e84",
-                    "#6e889b",
-                    "#899daa",
-                    "#bac2c4",
-                    "#cbd1d2",
-                    "#081a42",
-                    "#05206f",
-                    "#224d8c",
-                    "#2655b0",
-                    "#8190c8",
-                    "#b6bfda",
-                    "#00708e",
-                    "#00737f",
-                    "#00a0aa",
-                    "#5aa096",
-                    "#00557f",
-                    "#00aa7f",
-                    "#1d7576",
-                    "#009a44")
+        choices = colorSH
       )
     })
 
@@ -544,12 +442,7 @@ shinyEDA <- function(data) {
       selectInput(
         inputId = "set_color",
         label = "Stacked Bar Color",
-        choices = c("Set2", "Set1", "Set3",
-                    "Pastel2", "Pastel3", "Dark2", "Paired",
-                    "RdYlBu", "PuOr", "PRGn", "PiYG", "BrGB",
-                    "Spectral", "YlGnBu", "YlGn", "RdPu", "Reds",
-                    "PuBuGn", "Oranges", "OrRd", "Greys", "Greens",
-                    "GnBu")
+        choices = colorSets
       )
     })
 
@@ -658,12 +551,22 @@ shinyEDA <- function(data) {
       }
 
       else if(guess_cat_num(data[[input$pred]]) == "cat" & guess_cat_num(data[[input$resp]]) == "num") {
-        plot <- data %>%
-          dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-          ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]])) +
-          ggplot2::geom_boxplot(fill = input$color, alpha = .7) +
-          ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText))
-
+        #If Categorical is datetype, plot a line chart
+        if(inherits(data[[input$pred]], "Date") == TRUE) {
+          plot <- data %>%
+            dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
+            ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]])) +
+            ggplot2::geom_line() +
+            ggplot2::ggtitle(paste0("Time Series of ", respText))
+        }
+        #Otherwise, show a boxplot
+        else {
+          plot <- data %>%
+            dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
+            ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]])) +
+            ggplot2::geom_boxplot(fill = input$color, alpha = .7) +
+            ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText))
+        }
 
         plotly::ggplotly(plot)
       }
@@ -820,16 +723,6 @@ shinyEDA <- function(data) {
 
     })
 
-    ##Currently not using compareTable
-
-    # output$compareTable <- renderTable({
-    #     data %>%
-    #         dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-    #         group_by(.data[[input$pred]], .data[[input$resp]]) %>%
-    #         summarize(Count = n()) %>%
-    #         mutate(Percent = round(Count / sum(Count) * 100, 1))
-    # })
-
     ## Basic interactive data table output of all data
 
     output$dataTable <- DT::renderDataTable({
@@ -859,7 +752,7 @@ shinyEDA <- function(data) {
       corMat <- rstatix::cor_mat(data, names(dplyr::select_if(data, is.numeric)))
       ggcorrplot::ggcorrplot(corMat,
                              title = "Correlation Plot of Data",
-                             #colors = c("blue", "white", "orange"),
+                             colors = c("blue", "white", "orange"),
                              hc.order = TRUE,
                              type = "upper",
                              lab = TRUE,
@@ -872,24 +765,6 @@ shinyEDA <- function(data) {
       corMat <- rstatix::cor_mat(data, names(dplyr::select_if(data, is.numeric)))
       DT::datatable(corMat, filter = "top", rownames = NULL)
     })
-
-    # df_products_upload <- reactive({
-    #   inFile <- input$target_upload
-    #   if (is.null(inFile))
-    #     return(NULL)
-    #   data <- read.csv(inFile$datapath, header = TRUE,sep = input$separator)
-    #   return(data)
-    # })
-
-    # # Downloadable csv of selected dataset ----
-    # output$downloadData <- downloadHandler(
-    #     filename = function() {
-    #         paste("PPSTable", ".csv", sep = "")
-    #     },
-    #     content = function(file) {
-    #         write.csv(ppsTable(), file, row.names = FALSE)
-    #     }
-    # )
   }
 
   # Run the application
