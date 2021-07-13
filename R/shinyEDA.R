@@ -11,13 +11,15 @@
 #'
 #' @importFrom magrittr "%>%"
 
-colorSH <- c("#0072CE", "#009A44", "#002855", "#00abc8", "#65baaf")
-colorSets <- c("Set2", "Set1", "Set3",
-          "Pastel2", "Pastel3", "Dark2", "Paired",
-          "RdYlBu", "PuOr", "PRGn", "PiYG", "BrGB",
-          "Spectral", "YlGnBu", "YlGn", "RdPu", "Reds",
-          "PuBuGn", "Oranges", "OrRd", "Greys", "Greens",
-          "GnBu")
+colorSets <- c("Tableau 10", "Tableau 20", "Color Blind", "Seattle Grays",
+               "Traffic", "Miller Stone", "Superfishel Stone", "Nuriel Stone",
+               "Jewel Bright", "Summer", "Winter", "Green-Orange-Teal",
+               "Red-Blue-Brown", "Purple-Pink-Gray", "Hue Circle", "Classic 10",
+               "Classic 10 Medium", "Classic 10 Light", "Classic 20",
+               "Classic Gray 5", "Classic Color Blind", "Classic Traffic Light",
+               "Classic Purple-Gray 6", "Classic Purple-Gray 12",
+               "Classic Green-Orange 6", "Classic Green-Orange 12",
+               "Classic Blue-Red 6", "Classic Blue-Red 12", "Classic Cyclic")
 
 shinyEDA <- function(data) {
   # Define UI for application that draws a histogram
@@ -33,7 +35,7 @@ shinyEDA <- function(data) {
                                  tabName = "ggplot"),
         shinydashboard::menuItem("Transformations",
                                  tabName = "transform"),
-        shinydashboard::menuItem("Table",
+        shinydashboard::menuItem("Data Frame",
                                  tabName = "dt"),
         shinydashboard::menuItem("Predictive Power Score",
                                  tabName = "pps"),
@@ -61,14 +63,13 @@ shinyEDA <- function(data) {
           ),
 
           shinydashboard::box(
-            shiny::uiOutput("color"),
             shiny::uiOutput("set_color"),
             width = 4
           ),
 
           shinydashboard::box(
             shiny::textOutput("ppsText"),
-            width = 8
+            width = 12
           ),
 
           shinydashboard::box(
@@ -89,12 +90,11 @@ shinyEDA <- function(data) {
             width = 6
           ),
           shinydashboard::box(
-            #DT::dataTableOutput("predDesc"), width = 6
-            DT::dataTableOutput("predDesc"), width = 6
+            DT::dataTableOutput("predDesc"), width = 12
           ),
 
           shinydashboard::box(
-            DT::dataTableOutput("respDesc"), width = 6
+            DT::dataTableOutput("respDesc"), width = 12
           ),
         ),
 
@@ -102,7 +102,6 @@ shinyEDA <- function(data) {
           tabName = "transform",
           shinydashboard::box(
             shiny::uiOutput("numVar"),
-            shiny::uiOutput("tf_color"),
             shiny::textOutput("shapiroOrig"),
             shiny::textOutput("shapiroBox"),
             shiny::textOutput("shapiroLog"),
@@ -282,11 +281,9 @@ shinyEDA <- function(data) {
         dplyr::select(.data[[input$numVar]]) %>%
         ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
         ggplot2::geom_histogram(stat = "bin",
-                       bins = 10,
-                       ggplot2::aes(fill = input$tf_color)) +
+                       bins = 10) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count", title = base::paste0("Original Data for ", numText)) +
-        ggplot2::scale_fill_manual(values = input$tf_color)
+        ggplot2::labs(x = numText, y = "Count", title = base::paste0("Original Data for ", numText))
 
       plotly::ggplotly(plot)
 
@@ -320,10 +317,9 @@ shinyEDA <- function(data) {
         dplyr::select(.data[[input$numVar]]) %>%
         ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
         ggplot2::geom_histogram(stat = "bin",
-                       bins = 10, ggplot2::aes(fill = input$tf_color)) +
+                       bins = 10) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count", title = paste0("Box-Cox Transformation of ", numText, " with Lambda = ", bc_val)) +
-        ggplot2::scale_fill_manual(values = input$tf_color)
+        ggplot2::labs(x = numText, y = "Count", title = paste0("Box-Cox Transformation of ", numText, " with Lambda = ", bc_val))
 
       plotly::ggplotly(plot)
     })
@@ -346,11 +342,10 @@ shinyEDA <- function(data) {
       plot <- data %>%
         dplyr::select(.data[[input$numVar]]) %>%
         ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10, ggplot2::aes(fill = input$tf_color)) +
+        ggplot2::geom_histogram(bins = 10) +
         ggplot2::ggtitle(paste0("Log Transformation of ", numText)) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count") +
-        ggplot2::scale_fill_manual(values = input$tf_color)
+        ggplot2::labs(x = numText, y = "Count")
 
       plotly::ggplotly(plot)
 
@@ -372,11 +367,10 @@ shinyEDA <- function(data) {
       plot <- data %>%
         dplyr::select(.data[[input$numVar]]) %>%
         ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10, ggplot2::aes(fill = input$tf_color)) +
+        ggplot2::geom_histogram(bins = 10) +
         ggplot2::ggtitle(paste0("Square Root Transformation of ", numText)) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count") +
-        ggplot2::scale_fill_manual(values = input$tf_color)
+        ggplot2::labs(x = numText, y = "Count")
 
       plotly::ggplotly(plot)
 
@@ -400,11 +394,10 @@ shinyEDA <- function(data) {
       plot <- data %>%
         dplyr::select(.data[[input$numVar]]) %>%
         ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10, ggplot2::aes(fill = input$tf_color)) +
+        ggplot2::geom_histogram(bins = 10) +
         ggplot2::ggtitle(paste0("Yeo-Johnson Transformation of ", numText)) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count") +
-        ggplot2::scale_fill_manual(values = input$tf_color)
+        ggplot2::labs(x = numText, y = "Count")
 
       plotly::ggplotly(plot)
 
@@ -441,7 +434,7 @@ shinyEDA <- function(data) {
     output$set_color <- shiny::renderUI({
       selectInput(
         inputId = "set_color",
-        label = "Stacked Bar Color",
+        label = "Color Palette",
         choices = colorSets
       )
     })
@@ -459,9 +452,10 @@ shinyEDA <- function(data) {
           dplyr::summarize(n =dplyr:: n()) %>%
           dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
           ggplot2::ggplot(ggplot2::aes(.data[[input$pred]])) +
-          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]]),
-                   position = "dodge",
-                   fill = input$color) +
+          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]],
+                                         fill=.data[[input$pred]]),
+                   position = "dodge") +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::labs(x = predText, y = "Count") +
           ggplot2::ggtitle(paste0("Distribution of ", predText)) +
           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0))
@@ -475,10 +469,10 @@ shinyEDA <- function(data) {
         plot <- data %>%
           dplyr::select(.data[[input$pred]]) %>%
           ggplot2::ggplot(ggplot2::aes(.data[[input$pred]])) +
-          ggplot2::geom_density(ggplot2::aes(fill = input$color, alpha = .7)) +
+          ggplot2::geom_density(ggplot2::aes(fill = "#5778a4", alpha = .7)) +
           ggplot2::ggtitle(paste0("Distribution of ", predText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0)) +
-          ggplot2::scale_fill_manual(values = input$color) +
+          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0),
+                         legend.position = "none") +
           ggplot2::labs(x = predText, y = "Density")
 
         plotly::ggplotly(plot)
@@ -500,9 +494,10 @@ shinyEDA <- function(data) {
           dplyr::summarize(n = dplyr::n()) %>%
           dplyr::mutate(pct = round(n / sum(n) * 100, 1)) %>%
           ggplot2::ggplot(ggplot2::aes(.data[[input$resp]])) +
-          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]]),
-                   position = "dodge",
-                   fill = input$color) +
+          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]],
+                            fill=.data[[input$resp]]),
+                            position = "dodge") +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::labs(x = respText, y = "Count") +
           ggplot2::ggtitle(paste0("Distribution of ", respText)) +
           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0))
@@ -513,14 +508,14 @@ shinyEDA <- function(data) {
       }
 
       else if(guess_cat_num(data[[input$resp]]) == "num") {
-        #Some other graphical component will go here
         plot <- data %>%
           dplyr::select(.data[[input$resp]]) %>%
           ggplot2::ggplot(ggplot2::aes(.data[[input$resp]])) +
-          ggplot2::geom_density(ggplot2::aes(fill = input$color, alpha = .7)) +
+          ggplot2::geom_density(ggplot2::aes(fill = "#5778a4", alpha = .7)) +
           ggplot2::ggtitle(paste0("Distribution of ", respText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0)) +
-          ggplot2::scale_fill_manual(values = input$color) +
+          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0),
+                         legend.position = "none") +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::labs(x = respText, y = "Density")
 
         plotly::ggplotly(plot)
@@ -563,9 +558,11 @@ shinyEDA <- function(data) {
         else {
           plot <- data %>%
             dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-            ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]])) +
-            ggplot2::geom_boxplot(fill = input$color, alpha = .7) +
-            ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText))
+            ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]], fill = .data[[input$pred]])) +
+            ggplot2::geom_boxplot(alpha = .7) +
+            ggthemes::scale_fill_tableau(palette = input$set_color) +
+            ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText)) +
+            ggplot2::coord_flip()
         }
 
         plotly::ggplotly(plot)
@@ -574,8 +571,9 @@ shinyEDA <- function(data) {
       else if(guess_cat_num(data[[input$pred]]) == "num" & guess_cat_num(data[[input$resp]]) == "cat") {
         plot <- data %>%
           dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-          ggplot2::ggplot(ggplot2::aes(x = .data[[input$resp]], y = .data[[input$pred]] )) +
-          ggplot2::geom_boxplot(fill = input$color, alpha = .7) +
+          ggplot2::ggplot(ggplot2::aes(x = .data[[input$resp]], y = .data[[input$pred]], fill = .data[[input$resp]])) +
+          ggplot2::geom_boxplot(alpha = .7) +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText)) +
           ggplot2::coord_flip()
 
@@ -591,7 +589,7 @@ shinyEDA <- function(data) {
           ggplot2::ggplot(ggplot2::aes(x = .data[[input$resp]], y = .data[["n"]])) +
           ggplot2::geom_col(ggplot2::aes(fill = .data[[input$pred]])) +
           ggplot2::labs(x = predText, y = "Count") +
-          ggplot2::scale_fill_brewer(palette = input$set_color) +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::ggtitle(paste0("Stacked Bar Plot of ", predText, " Split On ", respText)) +
           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0)) +
           ggplot2::guides(fill = ggplot2::guide_legend(title = respText))
@@ -635,7 +633,7 @@ shinyEDA <- function(data) {
           dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
           ggplot2::ggplot(ggplot2::aes(x = .data[[input$resp]], fill = .data[[input$pred]])) +
           ggplot2::geom_density(alpha = .7) +
-          ggplot2::scale_fill_brewer(palette = input$set_color) +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::ggtitle(paste0("Density Plot of ", respText, " Split On ", predText)) +
           ggplot2::labs(x = respText, y = "Density")
 
@@ -647,7 +645,7 @@ shinyEDA <- function(data) {
           dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
           ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], fill = .data[[input$resp]])) +
           ggplot2::geom_density(alpha = .7) +
-          ggplot2::scale_fill_brewer(palette = input$set_color) +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::ggtitle(paste0("Density Plot of ", respText, " Split On ", predText)) +
           ggplot2::labs(x = predText, y = "Density")
 
@@ -663,7 +661,7 @@ shinyEDA <- function(data) {
           ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[["n"]])) +
           ggplot2::geom_col(ggplot2::aes(fill = .data[[input$resp]]), position = "dodge") +
           ggplot2::labs(x = predText, y = "Count") +
-          ggplot2::scale_fill_brewer(palette = input$set_color) +
+          ggthemes::scale_fill_tableau(palette = input$set_color) +
           ggplot2::ggtitle(paste0("Grouped Bar Plot of ", predText, " Split On ", respText)) +
           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0)) +
           ggplot2::guides(fill = ggplot2::guide_legend(title = respText))

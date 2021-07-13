@@ -28,4 +28,6 @@ Imports:
   purrr,
   DT,
   rstatix,
-  ggcorrplot
+  ggthemes,
+  ggcorrplot,
+  isoband
