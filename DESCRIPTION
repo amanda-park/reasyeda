@@ -24,11 +24,9 @@ Imports:
   dplyr,
   magrittr,
   ppsr,
-  dlookr,
   tibble,
   purrr,
   DT,
   rstatix,
   ggthemes,
   ggcorrplot,
-  isoband

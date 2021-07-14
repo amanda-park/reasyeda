@@ -426,7 +426,6 @@ shinyEDA <- function(data) {
 
     })
 
-
     #Visualization Tab Plots
 
     output$ppsText <- shiny::renderText({
