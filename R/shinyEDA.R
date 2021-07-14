@@ -22,6 +22,11 @@ colorSets <- c("Tableau 10", "Tableau 20", "Color Blind", "Seattle Grays",
                "Classic Blue-Red 6", "Classic Blue-Red 12", "Classic Cyclic")
 
 shinyEDA <- function(data) {
+  # Check data
+  assertthat::assert_that(!missing(data), msg = "Expect a data frame")
+  assertthat::assert_that(is.data.frame(data), msg = "Expect a data frame")
+  assertthat::assert_that(nrow(data) > 0, msg = "Data frame doesn't have any observations")
+  
   # Define UI for application that draws a histogram
   ui <- shinydashboard::dashboardPage(
     skin = "blue",
@@ -195,7 +200,7 @@ shinyEDA <- function(data) {
       shiny::selectInput(
         inputId = "pred",
         label = "Predictor",
-        choices = data %>% colnames()
+        choices = data[,order(colnames(data), decreasing = TRUE)] %>% colnames()
       )
     })
 
@@ -203,7 +208,7 @@ shinyEDA <- function(data) {
       shiny::selectInput(
         inputId = "resp",
         label = "Response",
-        choices = data %>% colnames()
+        choices = data[,order(colnames(data), decreasing = TRUE)] %>% colnames()
       )
     })
 
@@ -421,13 +426,6 @@ shinyEDA <- function(data) {
 
     })
 
-    output$tf_color <- shiny::renderUI({
-      selectInput(
-        inputId = "tf_color",
-        label = "Color",
-        choices = colorSH
-      )
-    })
 
     #Visualization Tab Plots
 
@@ -438,14 +436,6 @@ shinyEDA <- function(data) {
       print(paste0("The Predictive Power Score Between ",
                    input$pred, " and ", input$resp, " is: ",
                    round(ppsCalc[2], 2)))
-    })
-
-    output$color <- shiny::renderUI({
-      selectInput(
-        inputId = "color",
-        label = "Bar Color",
-        choices = colorSH
-      )
     })
 
     output$set_color <- shiny::renderUI({
