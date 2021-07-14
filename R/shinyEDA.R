@@ -37,9 +37,7 @@ shinyEDA <- function(data) {
                                  tabName = "transform"),
         shinydashboard::menuItem("Data Frame",
                                  tabName = "dt"),
-        shinydashboard::menuItem("Predictive Power Score",
-                                 tabName = "pps"),
-        shinydashboard::menuItem("Pearson Correlation",
+        shinydashboard::menuItem("Correlation",
                                  tabName = "corr")
       )
     ),
@@ -73,28 +71,40 @@ shinyEDA <- function(data) {
           ),
 
           shinydashboard::box(
-            plotly::plotlyOutput("predPlot"),
+            shinycssloaders::withSpinner(plotly::plotlyOutput("predPlot"),
+                                         type = 3,
+                                         color = "#5778a4",
+                                         color.background = "#ffffff"),
             width = 6
           ),
           shinydashboard::box(
-            plotly::plotlyOutput("respPlot"),
+            shinycssloaders::withSpinner(plotly::plotlyOutput("respPlot"),
+                                         type = 3,
+                                         color = "#5778a4",
+                                         color.background = "#ffffff"),
             width = 6
           ),
 
           shinydashboard::box(
-            plotly::plotlyOutput("bivarPlot"),
+            shinycssloaders::withSpinner(plotly::plotlyOutput("bivarPlot"),
+                                         type = 3,
+                                         color = "#5778a4",
+                                         color.background = "#ffffff"),
             width = 6
           ),
           shinydashboard::box(
-            plotly::plotlyOutput("bivarPlotAlt"),
+            shinycssloaders::withSpinner(plotly::plotlyOutput("bivarPlotAlt"),
+                                         type = 3,
+                                         color = "#5778a4",
+                                         color.background = "#ffffff"),
             width = 6
           ),
           shinydashboard::box(
-            DT::dataTableOutput("predDesc"), width = 12
+            DT::dataTableOutput("predDesc"), width = 6
           ),
 
           shinydashboard::box(
-            DT::dataTableOutput("respDesc"), width = 12
+            DT::dataTableOutput("respDesc"), width = 6
           ),
         ),
 
@@ -140,32 +150,39 @@ shinyEDA <- function(data) {
         ),
 
         shinydashboard::tabItem(
-
-          tabName = "pps",
-          shinydashboard::box(
-            title = "Predictive Power Score",
-            shiny::plotOutput("ppsPlot"),
-            DT::dataTableOutput("ppsTable"),
-            width = 12
-          )
-
-        ),
-
-
-        shinydashboard::tabItem(
-
           tabName = "corr",
+            shinydashboard::box(
+              title = "Predictive Power Score Plot",
+              shinycssloaders::withSpinner(shiny::plotOutput("ppsPlot"),
+                                           type = 3,
+                                           color = "#5778a4",
+                                           color.background = "#ffffff"),
+              width = 12
+            ),
+
+
           shinydashboard::box(
-            title = "Pearson Correlations",
-            shiny::plotOutput("corrPlot"),
-            DT::dataTableOutput("corrTable"),
+            title = "Pearson Correlation Plot",
+            shinycssloaders::withSpinner(shiny::plotOutput("corrPlot"),
+                                         type = 3,
+                                         color = "#5778a4",
+                                         color.background = "#ffffff"),
+            width = 12
+          ),
+
+          shinydashboard::tabBox(
+            title = "Table Outputs",
+            shiny::tabPanel("PPS", DT::dataTableOutput("ppsTable")),
+            shiny::tabPanel("Corr", DT::dataTableOutput("corrTable")),
             width = 12
           )
+
         )
       )
     )
 
   )
+
 
 
 
@@ -729,14 +746,18 @@ shinyEDA <- function(data) {
 
     # Predictive Power Score
 
+    ppsMat <- reactive(
+      ppsr::score_matrix(data)
+    )
+
     output$ppsTable <- DT::renderDataTable({
-      ppsMat <- ppsr::score_matrix(data)
-      DT::datatable(round(ppsMat,2), filter = "top", rownames = NULL)
+      DT::datatable(round(ppsMat(), 2),
+                    filter = "top",
+                    rownames = NULL)
     })
 
     output$ppsPlot <- shiny::renderPlot({
-      ppsMat <- ppsr::score_matrix(data)
-      ggcorrplot::ggcorrplot(ppsMat,
+      ggcorrplot::ggcorrplot(ppsMat(),
                              title = "Predictive Power Score Plot of Data",
                              show.legend = FALSE,
                              type = "upper",
@@ -746,9 +767,12 @@ shinyEDA <- function(data) {
 
     # Correlation Graphs
 
+    corMat <- reactive(
+      rstatix::cor_mat(data, names(dplyr::select_if(data, is.numeric)))
+    )
+
     output$corrPlot <- shiny::renderPlot({
-      corMat <- rstatix::cor_mat(data, names(dplyr::select_if(data, is.numeric)))
-      ggcorrplot::ggcorrplot(corMat,
+      ggcorrplot::ggcorrplot(corMat(),
                              title = "Correlation Plot of Data",
                              colors = c("blue", "white", "orange"),
                              hc.order = TRUE,
@@ -760,8 +784,7 @@ shinyEDA <- function(data) {
     })
 
     output$corrTable <- DT::renderDataTable({
-      corMat <- rstatix::cor_mat(data, names(dplyr::select_if(data, is.numeric)))
-      DT::datatable(corMat, filter = "top", rownames = NULL)
+      DT::datatable(corMat(), filter = "top", rownames = NULL)
     })
   }
 

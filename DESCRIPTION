@@ -17,6 +17,7 @@ Suggests:
 Imports:
   shiny,
   shinydashboard,
+  shinycssloaders,
   ggplot2,
   plotly,
   recipes,
