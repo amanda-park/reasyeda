@@ -26,7 +26,7 @@ shinyEDA <- function(data) {
   assertthat::assert_that(!missing(data), msg = "Expect a data frame")
   assertthat::assert_that(is.data.frame(data), msg = "Expect a data frame")
   assertthat::assert_that(nrow(data) > 0, msg = "Data frame doesn't have any observations")
-  
+
   # Define UI for application that draws a histogram
   ui <- shinydashboard::dashboardPage(
     skin = "blue",
@@ -104,12 +104,12 @@ shinyEDA <- function(data) {
                                          color.background = "#ffffff"),
             width = 6
           ),
-          shinydashboard::box(
-            DT::dataTableOutput("predDesc"), width = 6
-          ),
 
-          shinydashboard::box(
-            DT::dataTableOutput("respDesc"), width = 6
+          shinydashboard::tabBox(
+            title = "Table Outputs",
+            shiny::tabPanel("Predictor Table", DT::dataTableOutput("predDesc")),
+            shiny::tabPanel("Response Table", DT::dataTableOutput("respDesc")),
+            width = 12
           ),
         ),
 
@@ -682,48 +682,34 @@ shinyEDA <- function(data) {
 
     output$predDesc <- DT::renderDataTable({
       if(guess_cat_num(data[[input$pred]]) == "num") {
-        data %>%
-          dplyr::select(.data[[input$pred]]) %>%
-          dlookr::describe() %>%
-          dplyr::select(variable, na, mean, sd, se_mean, IQR, skewness, kurtosis, p00, p25, p50, p75, p100) %>%
-          purrr::set_names("Predictor", "Missing", "Mean", "SD", "SE Mean", "IQR", "Skewness", "Kurtosis",
-                    "Min", "25th Percentile", "Median", "75th Percentile", "Max") %>%
-          base::t() %>%
-          base::as.data.frame() %>%
-          tibble::rownames_to_column("row_names") %>%
-          purrr::set_names("Metric", "Value") %>%
-          DT::datatable(options = list(pageLength = 15), rownames = NULL)
+        numeric_metric_calculations(df = data[,input$pred]) %>%
+          datatable_var_output()
 
       }
       else{
         data %>%
           dplyr::select(.data[[input$pred]]) %>%
-          dlookr::diagnose_category() %>%
-          DT::datatable(options = list(pageLength = 15), rownames = NULL)
+          dplyr::group_by(.data[[input$pred]]) %>%
+          dplyr::summarize(n = dplyr::n()) %>%
+          dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
+          datatable_var_output()
       }
 
     })
 
     output$respDesc <- DT::renderDataTable({
-      if(guess_cat_num(data[[input$resp]]) == "num") {
-        data %>%
-          dplyr::select(.data[[input$resp]]) %>%
-          dlookr::describe() %>%
-          dplyr::select(variable, na, mean, sd, se_mean, IQR, skewness, kurtosis, p00, p25, p50, p75, p100) %>%
-          purrr::set_names("Predictor", "Missing", "Mean", "SD", "SE Mean", "IQR", "Skewness", "Kurtosis",
-                    "Min", "25th Percentile", "Median", "75th Percentile", "Max") %>%
-          base::t() %>%
-          base::as.data.frame() %>%
-          tibble::rownames_to_column("row_names") %>%
-          purrr::set_names("Metric", "Value") %>%
-          DT::datatable(options = list(pageLength = 15), rownames = NULL)
 
+      if(guess_cat_num(data[[input$resp]]) == "num") {
+        numeric_metric_calculations(df = data[,input$resp]) %>%
+          datatable_var_output()
       }
       else{
         data %>%
           dplyr::select(.data[[input$resp]]) %>%
-          dlookr::diagnose_category() %>%
-          DT::datatable(options = list(pageLength = 15), rownames = NULL)
+          dplyr::group_by(.data[[input$resp]]) %>%
+          dplyr::summarize(n = dplyr::n()) %>%
+          dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
+          datatable_var_output()
       }
 
     })
@@ -731,7 +717,7 @@ shinyEDA <- function(data) {
     ## Basic interactive data table output of all data
 
     output$dataTable <- DT::renderDataTable({
-      DT::datatable(data = data, filter = "top")
+      datatable_overall_output(data)
     })
 
     # Predictive Power Score
@@ -741,9 +727,9 @@ shinyEDA <- function(data) {
     )
 
     output$ppsTable <- DT::renderDataTable({
-      DT::datatable(round(ppsMat(), 2),
-                    filter = "top",
-                    rownames = NULL)
+      datatable_overall_output(as.data.frame(ppsMat()) %>%
+                                 round(2) %>%
+                                 tibble::rownames_to_column(var = "Variable"))
     })
 
     output$ppsPlot <- shiny::renderPlot({
@@ -774,7 +760,7 @@ shinyEDA <- function(data) {
     })
 
     output$corrTable <- DT::renderDataTable({
-      DT::datatable(corMat(), filter = "top", rownames = NULL)
+      datatable_overall_output(corMat())
     })
   }
 
