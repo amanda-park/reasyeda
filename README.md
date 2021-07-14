@@ -4,7 +4,6 @@
 # reasyeda
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 This is a package developed to quickly create interactive visualizations
@@ -38,11 +37,11 @@ data(penguins, package = "modeldata")
 
 Upon opening the shiny app there will be 5 tabs:
 
-  - Visualization
-  - Transformations
-  - Table
-  - Predictive Power Score
-  - Pearson correlations
+-   Visualization
+-   Transformations
+-   Table
+-   Predictive Power Score
+-   Pearson correlations
 
 **Visualization** creates plots of your raw data that executive leaders
 will find pleasing to the eyes. Most plots are plotly-wrapped ggplots
@@ -57,13 +56,7 @@ transformations to your numeric variables.
 **Table** will let you see your raw data in an interactive datatable for
 easier exploration at a very granular level.
 
-**Predictive Power Score** is an alternative measurement to correlation
-that can detect relationships between numeric and categorical variables.
-This runs on all variables in your dataset to come up with a solution. A
-heatmap plot is also provided to more easily visualise which
-correlations are most important.
-
-**Pearson Correlations** are your regular way of measuring strength
-between numeric variables. Much like Predictive Power Score, it will
-return a heatmap which visually shows the strengths and weaknesses of
-correlations in your dataset.
+**Correlations** measures the relationship between numeric variables via
+Pearson’s Correlation and then detecting overall relationships between
+variables using Predictive Power Score. Plots and Table outputs are
+provided.
