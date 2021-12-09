@@ -3,7 +3,7 @@
 numeric_metric_calculations <- function(df = data) {
 
   output <- df %>%
-    summarize(`Minimum Value` = base::min(df, na.rm = TRUE),
+    dplyr::summarize(`Minimum Value` = base::min(df, na.rm = TRUE),
               `25% Percentile` = stats::quantile(df, 0.25, na.rm = TRUE),
               `Mean Value` = base::round(mean(df %>% dplyr::pull(), na.rm = TRUE), 2),
               `Median Value` = stats::median(df %>% dplyr::pull(), na.rm = TRUE),

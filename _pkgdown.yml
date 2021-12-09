@@ -1,0 +1,7 @@
+url: ~
+template:
+  params:
+    bootswatch: darkly
+  development:
+    repo: https://github.com/amanda-park/reasyeda
+

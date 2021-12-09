@@ -1,6 +1,6 @@
 Package: reasyeda
 Title: Do Quick and Easy Exploratory Data Analysis on Your Data!
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person(given = "Amanda",
            family = "Park",
@@ -30,3 +30,6 @@ Imports:
   rstatix,
   ggthemes,
   ggcorrplot,
+  tidyr,
+  stringr, 
+  assertthat

@@ -244,7 +244,7 @@ shinyEDA <- function(data) {
         dplyr::pull(.data[[input$numVar]]) %>%
         stats::shapiro.test()
 
-      base::paste0("Box-Cox Shapiro-Wilk p-value: ", base::round(swBox$p.value, 2))
+      base::paste0("Box-Cox Shapiro-Wilk p-value: ")#, base::round(swBox$p.value, 2))
     })
 
     output$shapiroLog <- shiny::renderText({
@@ -263,7 +263,8 @@ shinyEDA <- function(data) {
     })
 
     output$shapiroSqrt <- shiny::renderText({
-      #Box Cox
+
+      #Sqrt
       bc_recipe <- recipes::recipe(x = data, formula = NULL) %>%
         recipes::step_sqrt(recipes::all_numeric()) %>%
         recipes::prep(data, retain = TRUE)
@@ -344,6 +345,7 @@ shinyEDA <- function(data) {
         ggplot2::labs(x = numText, y = "Count", title = paste0("Box-Cox Transformation of ", numText, " with Lambda = ", bc_val))
 
       plotly::ggplotly(plot)
+
     })
 
     output$log <- plotly::renderPlotly({
@@ -359,7 +361,6 @@ shinyEDA <- function(data) {
         recipes::prep(data, retain = TRUE)
 
       data <- recipes::juice(bc_recipe)
-
 
       plot <- data %>%
         dplyr::select(.data[[input$numVar]]) %>%
