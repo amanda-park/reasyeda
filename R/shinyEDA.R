@@ -21,6 +21,19 @@ colorSets <- c("Tableau 10", "Tableau 20", "Color Blind", "Seattle Grays",
                "Classic Green-Orange 6", "Classic Green-Orange 12",
                "Classic Blue-Red 6", "Classic Blue-Red 12", "Classic Cyclic")
 
+#######################
+#MODULES ...?
+#######################
+
+# bar_plot_UI <- function(id) {
+#   tagList(
+#     selectInput(NS(id, "var"), "Variable", choices = names(mtcars))
+#   )
+#
+#
+# }
+
+
 shinyEDA <- function(data) {
   # Check data
   assertthat::assert_that(!missing(data), msg = "Expect a data frame")
@@ -31,7 +44,7 @@ shinyEDA <- function(data) {
   ui <- shinydashboard::dashboardPage(
     skin = "blue",
     # Application title
-    shinydashboard::dashboardHeader(title = "Quick and Pretty EDA Plots"),
+    shinydashboard::dashboardHeader(title = "DashboardExploreR"),
 
     #Sidebar
     shinydashboard::dashboardSidebar(
@@ -188,9 +201,6 @@ shinyEDA <- function(data) {
 
   )
 
-
-
-
   # Define server logic required to draw a histogram
   server <- function(input, output) {
 
@@ -300,13 +310,10 @@ shinyEDA <- function(data) {
         stringr::str_replace_all("_", " ") %>%
         stringr::str_to_title()
 
-      plot <- data %>%
-        dplyr::select(.data[[input$numVar]]) %>%
-        ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(stat = "bin",
-                       bins = 10) +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count", title = base::paste0("Original Data for ", numText))
+      plot <- histogram_plot(data,
+                             value = input$numVar,
+                             num_text = numText,
+                             title = base::paste0("Original Data for ", numText))
 
       plotly::ggplotly(plot)
 
@@ -336,13 +343,10 @@ shinyEDA <- function(data) {
         dplyr::pull(.data[[input$numVar]]) %>%
         stats::shapiro.test()
 
-      plot <- data %>%
-        dplyr::select(.data[[input$numVar]]) %>%
-        ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(stat = "bin",
-                       bins = 10) +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count", title = paste0("Box-Cox Transformation of ", numText, " with Lambda = ", bc_val))
+      plot <- histogram_plot(data,
+                             value = input$numVar,
+                             num_text = numText,
+                             title = paste0("Box-Cox Transformation of ", numText, " with Lambda = ", bc_val))
 
       plotly::ggplotly(plot)
 
@@ -362,13 +366,10 @@ shinyEDA <- function(data) {
 
       data <- recipes::juice(bc_recipe)
 
-      plot <- data %>%
-        dplyr::select(.data[[input$numVar]]) %>%
-        ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10) +
-        ggplot2::ggtitle(paste0("Log Transformation of ", numText)) +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count")
+      plot <- histogram_plot(data,
+                             value = input$numVar,
+                             num_text = numText,
+                             title = base::paste0("Log Transformation of ", numText))
 
       plotly::ggplotly(plot)
 
@@ -387,13 +388,10 @@ shinyEDA <- function(data) {
 
       data <- recipes::juice(bc_recipe)
 
-      plot <- data %>%
-        dplyr::select(.data[[input$numVar]]) %>%
-        ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10) +
-        ggplot2::ggtitle(paste0("Square Root Transformation of ", numText)) +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count")
+      plot <- histogram_plot(data,
+                             value = input$numVar,
+                             num_text = numText,
+                             title = base::paste0("Square Root Transformation of ", numText))
 
       plotly::ggplotly(plot)
 
@@ -414,13 +412,10 @@ shinyEDA <- function(data) {
 
       data <- recipes::juice(bc_recipe)
 
-      plot <- data %>%
-        dplyr::select(.data[[input$numVar]]) %>%
-        ggplot2::ggplot(ggplot2::aes(.data[[input$numVar]])) +
-        ggplot2::geom_histogram(bins = 10) +
-        ggplot2::ggtitle(paste0("Yeo-Johnson Transformation of ", numText)) +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0), legend.position = "none") +
-        ggplot2::labs(x = numText, y = "Count")
+      plot <- histogram_plot(data,
+                             value = input$numVar,
+                             num_text = numText,
+                             title = base::paste0("Yeo-Johnson Transformation of ", numText))
 
       plotly::ggplotly(plot)
 
@@ -453,34 +448,21 @@ shinyEDA <- function(data) {
         stringr::str_to_title()
 
       if(guess_cat_num(data[[input$pred]]) == "cat") {
-        plot <- data %>%
-          dplyr::select(.data[[input$pred]]) %>%
-          dplyr::group_by(.data[[input$pred]]) %>%
-          dplyr::summarize(n =dplyr:: n()) %>%
-          dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
-          ggplot2::ggplot(ggplot2::aes(.data[[input$pred]])) +
-          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]],
-                                         fill=.data[[input$pred]]),
-                   position = "dodge") +
-          ggthemes::scale_fill_tableau(palette = input$set_color) +
-          ggplot2::labs(x = predText, y = "Count") +
-          ggplot2::ggtitle(paste0("Distribution of ", predText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0))
+
+        plot <- bar_plot(data,
+                         value = input$pred,
+                         color = input$set_color,
+                         var_text = predText,
+                         num_text = numText)
 
         plotly::ggplotly(plot)
-
-
       }
 
       else if(guess_cat_num(data[[input$pred]]) == "num") {
-        plot <- data %>%
-          dplyr::select(.data[[input$pred]]) %>%
-          ggplot2::ggplot(ggplot2::aes(.data[[input$pred]])) +
-          ggplot2::geom_density(ggplot2::aes(fill = "#5778a4", alpha = .7)) +
-          ggplot2::ggtitle(paste0("Distribution of ", predText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0),
-                         legend.position = "none") +
-          ggplot2::labs(x = predText, y = "Density")
+
+        plot <- density_plot(data,
+                         value = input$pred,
+                         var_text = predText)
 
         plotly::ggplotly(plot)
 
@@ -495,35 +477,22 @@ shinyEDA <- function(data) {
         stringr::str_to_title()
 
       if(guess_cat_num(data[[input$resp]]) == "cat") {
-        plot <- data %>%
-          dplyr::select(.data[[input$resp]]) %>%
-          dplyr::group_by(.data[[input$resp]]) %>%
-          dplyr::summarize(n = dplyr::n()) %>%
-          dplyr::mutate(pct = round(n / sum(n) * 100, 1)) %>%
-          ggplot2::ggplot(ggplot2::aes(.data[[input$resp]])) +
-          ggplot2::geom_col(ggplot2::aes(y = .data[["n"]],
-                            fill=.data[[input$resp]]),
-                            position = "dodge") +
-          ggthemes::scale_fill_tableau(palette = input$set_color) +
-          ggplot2::labs(x = respText, y = "Count") +
-          ggplot2::ggtitle(paste0("Distribution of ", respText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0))
+
+        plot <- bar_plot(data,
+                         value = input$resp,
+                         color = input$set_color,
+                         var_text = respText,
+                         num_text = numText)
 
         plotly::ggplotly(plot)
-
 
       }
 
       else if(guess_cat_num(data[[input$resp]]) == "num") {
-        plot <- data %>%
-          dplyr::select(.data[[input$resp]]) %>%
-          ggplot2::ggplot(ggplot2::aes(.data[[input$resp]])) +
-          ggplot2::geom_density(ggplot2::aes(fill = "#5778a4", alpha = .7)) +
-          ggplot2::ggtitle(paste0("Distribution of ", respText)) +
-          ggplot2::theme(axis.text.x = ggplot2::element_text(angle = -45, vjust = 1, hjust = 0),
-                         legend.position = "none") +
-          ggthemes::scale_fill_tableau(palette = input$set_color) +
-          ggplot2::labs(x = respText, y = "Density")
+
+        plot <- density_plot(data,
+                             value = input$resp,
+                             var_text = respText)
 
         plotly::ggplotly(plot)
 
@@ -690,8 +659,9 @@ shinyEDA <- function(data) {
         data %>%
           dplyr::select(.data[[input$pred]]) %>%
           dplyr::group_by(.data[[input$pred]]) %>%
-          dplyr::summarize(n = dplyr::n()) %>%
-          dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
+          dplyr::summarize(count = dplyr::n()) %>%
+          dplyr::mutate(percent = base::round(count / sum(count) * 100, 1)) %>%
+          dplyr::rename_with(stringr::str_to_title, dplyr::everything()) %>%
           datatable_var_output()
       }
 
@@ -707,8 +677,9 @@ shinyEDA <- function(data) {
         data %>%
           dplyr::select(.data[[input$resp]]) %>%
           dplyr::group_by(.data[[input$resp]]) %>%
-          dplyr::summarize(n = dplyr::n()) %>%
-          dplyr::mutate(pct = base::round(n / sum(n) * 100, 1)) %>%
+          dplyr::summarize(count = dplyr::n()) %>%
+          dplyr::mutate(percent = base::round(count / sum(count) * 100, 1)) %>%
+          dplyr::rename_with(stringr::str_to_title, dplyr::everything()) %>%
           datatable_var_output()
       }
 
@@ -717,7 +688,7 @@ shinyEDA <- function(data) {
     ## Basic interactive data table output of all data
 
     output$dataTable <- DT::renderDataTable({
-      datatable_overall_output(data)
+      datatable_overall_output(data %>% dplyr::rename_with(stringr::str_to_title, dplyr::everything()))
     })
 
     # Predictive Power Score
