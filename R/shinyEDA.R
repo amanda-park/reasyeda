@@ -131,21 +131,19 @@ shinyEDA <- function(data) {
           shinydashboard::box(
             shiny::uiOutput("numVar"),
             shiny::textOutput("shapiroOrig"),
-            shiny::textOutput("shapiroBox"),
+            #shiny::textOutput("shapiroBox"),
             shiny::textOutput("shapiroLog"),
             shiny::textOutput("shapiroSqrt"),
             shiny::textOutput("shapiroYJ"),
             width = 6
           ),
-
           shinydashboard::box(
             plotly::plotlyOutput("origDist"),
             width = 6
           ),
-
-          shinydashboard::box(
-            plotly::plotlyOutput("boxCox"), width = 6
-          ),
+          # shinydashboard::box(
+          #   plotly::plotlyOutput("boxCox"), width = 6
+          # ),
           shinydashboard::box(
             plotly::plotlyOutput("log"), width = 6
           ),
@@ -306,9 +304,7 @@ shinyEDA <- function(data) {
     ##Create Plotly Graphs
     output$origDist <- plotly::renderPlotly({
 
-      numText <- input$numVar %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      numText <- var_str_clean(input$numVar)
 
       plot <- histogram_plot(data,
                              value = input$numVar,
@@ -321,10 +317,7 @@ shinyEDA <- function(data) {
 
     output$boxCox <- plotly::renderPlotly({
 
-      numText <- input$numVar %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
-
+      numText <- var_str_clean(input$numVar)
       formula <- as.formula(paste(input$numVar , ".", sep = "~"))
 
       bc_recipe <- recipes::recipe(x = data, formula = NULL) %>%
@@ -354,10 +347,7 @@ shinyEDA <- function(data) {
 
     output$log <- plotly::renderPlotly({
 
-      numText <- input$numVar %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
-
+      numText <- var_str_clean(input$numVar)
       formula <- as.formula(paste(input$numVar , ".", sep = "~"))
 
       bc_recipe <- recipes::recipe(x = data, formula = NULL) %>%
@@ -378,9 +368,7 @@ shinyEDA <- function(data) {
 
     output$sqrt <- plotly::renderPlotly({
 
-      numText <- input$numVar %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      numText <- var_str_clean(input$numVar)
 
       bc_recipe <- recipes::recipe(x = data, formula = NULL) %>%
         recipes::step_sqrt(recipes::all_numeric()) %>%
@@ -400,10 +388,7 @@ shinyEDA <- function(data) {
 
     output$yj <- plotly::renderPlotly({
 
-      numText <- input$numVar %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
-
+      numText <- var_str_clean(input$numVar)
       formula <- as.formula(paste(input$numVar , ".", sep = "~"))
 
       bc_recipe <- recipes::recipe(x = data, formula = NULL) %>%
@@ -443,9 +428,7 @@ shinyEDA <- function(data) {
 
     output$predPlot <- plotly::renderPlotly({
 
-      predText <- input$pred %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      predText <- var_str_clean(input$pred)
 
       if(guess_cat_num(data[[input$pred]]) == "cat") {
 
@@ -465,16 +448,12 @@ shinyEDA <- function(data) {
                          var_text = predText)
 
         plotly::ggplotly(plot)
-
       }
-
     })
 
     output$respPlot <- plotly::renderPlotly({
 
-      respText <- input$resp %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      respText <- var_str_clean(input$resp)
 
       if(guess_cat_num(data[[input$resp]]) == "cat") {
 
@@ -501,22 +480,16 @@ shinyEDA <- function(data) {
     })
 
     output$bivarPlot <- plotly::renderPlotly({
-      predText <- input$pred %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
 
-      respText <- input$resp %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      predText <- var_str_clean(input$pred)
+      respText <- var_str_clean(input$resp)
 
       if(guess_cat_num(data[[input$pred]]) == "num" & guess_cat_num(data[[input$resp]]) == "num") {
-        plot <- data %>%
-          dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-          ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]])) +
-          ggplot2::geom_point() +
-          ggplot2::geom_smooth() +
-          ggplot2::ggtitle(paste0("Scatterplot of ", predText, " and ", respText)) +
-          ggplot2::labs(x = predText, y = respText)
+        plot <- scatter_plot(data,
+                             value_pred = input$pred,
+                             value_resp = input$resp,
+                             var_text_pred = predText,
+                             var_text_resp = respText)
 
         plotly::ggplotly(plot)
       }
@@ -532,26 +505,26 @@ shinyEDA <- function(data) {
         }
         #Otherwise, show a boxplot
         else {
-          plot <- data %>%
-            dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-            ggplot2::ggplot(ggplot2::aes(x = .data[[input$pred]], y = .data[[input$resp]], fill = .data[[input$pred]])) +
-            ggplot2::geom_boxplot(alpha = .7) +
-            ggthemes::scale_fill_tableau(palette = input$set_color) +
-            ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText)) +
-            ggplot2::coord_flip()
+          plot <- box_plot(data,
+                           value_pred = input$pred,
+                           value_resp = input$resp,
+                           color = input$set_color,
+                           var_text_pred = predText,
+                           var_text_resp = respText)
+
         }
 
         plotly::ggplotly(plot)
       }
 
       else if(guess_cat_num(data[[input$pred]]) == "num" & guess_cat_num(data[[input$resp]]) == "cat") {
-        plot <- data %>%
-          dplyr::select(.data[[input$pred]], .data[[input$resp]]) %>%
-          ggplot2::ggplot(ggplot2::aes(x = .data[[input$resp]], y = .data[[input$pred]], fill = .data[[input$resp]])) +
-          ggplot2::geom_boxplot(alpha = .7) +
-          ggthemes::scale_fill_tableau(palette = input$set_color) +
-          ggplot2::ggtitle(paste0("Boxplot of ", respText, " Split On ", predText)) +
-          ggplot2::coord_flip()
+
+        plot <- box_plot(data,
+                         value_pred = input$resp,
+                         value_resp = input$pred,
+                         color = input$set_color,
+                         var_text_pred = respText,
+                         var_text_resp = predText)
 
         plotly::ggplotly(plot)
       }
@@ -576,13 +549,8 @@ shinyEDA <- function(data) {
     })
 
     output$bivarPlotAlt <- plotly::renderPlotly({
-      predText <- input$pred %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
-
-      respText <- input$resp %>%
-        stringr::str_replace_all("_", " ") %>%
-        stringr::str_to_title()
+      predText <- var_str_clean(input$pred)
+      respText <- var_str_clean(input$resp)
 
       if(guess_cat_num(data[[input$pred]]) == "num" & guess_cat_num(data[[input$resp]]) == "num") {
 
