@@ -12,7 +12,12 @@ guess_cat_num <- function(var, descr)  {
     return("cat")
   }
   # for unsupported classes return "oth"
-  if (class(var)[1] %in% c("numeric", "integer", "character", "logical", "Date", "POSIXct"))  {
+  if (class(var)[1] %in% c("numeric",
+                           "integer",
+                           "character",
+                           "logical",
+                           "Date",
+                           "POSIXct"))  {
     var_class <- class(var)[1]
   } else {
     return("oth")
@@ -44,6 +49,3 @@ guess_cat_num <- function(var, descr)  {
     return("cat")
   }
 }
-
-
-

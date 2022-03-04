@@ -11,11 +11,12 @@ DT::datatable(
     pageLength = 25,
     paging = TRUE,
     searching = TRUE,
-    dom = 'Bfrtip',
-    buttons = list('copy', 'csv', 'excel'),
+    dom = "Bfrtip",
+    buttons = list("copy", "csv", "excel"),
     initComplete = DT::JS(
       "function(settings, json) {",
-      "$(this.api().table().header()).css({'background-color': '#007ba7', 'color': '#ffffff'});",
+      "$(this.api().table().header()).css(
+      {'background-color': '#007ba7', 'color': '#ffffff'});",
       "}")
   )
 )

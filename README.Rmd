@@ -39,7 +39,7 @@ require(reasyeda)
 #Load penguins dataset
 data(penguins, package = "modeldata")
 
-shinyEDA(penguins)
+explore_df(penguins)
 ```
 
 Upon opening the shiny app there will be 5 tabs:
