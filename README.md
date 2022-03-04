@@ -11,6 +11,8 @@ for your data and standardize how they look. Other functionality has
 also been built in order to check correlation, predictive power score
 (PPS), and how various transformations might influence your data.
 
+Note: This package was built on R 4.1.2.
+
 ## Installation
 
 You can install reasyeda like this:
@@ -19,9 +21,6 @@ You can install reasyeda like this:
 # install.packages("devtools")
 devtools::install_github("amanda-park/reasyeda")
 ```
-
-This package was built recently so it’s highly recommended to be on
-version 4 of R.
 
 ## How to Use
 
