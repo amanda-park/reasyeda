@@ -27,12 +27,12 @@ version 4 of R.
 
 ``` r
 require(reasyeda)
-#> Loading required package: reasyeda
 
 #Load penguins dataset
 data(penguins, package = "modeldata")
 
-#shinyEDA(penguins)
+#Opens Shiny App to Interactively Explore Data
+#explore_df(penguins)
 ```
 
 Upon opening the shiny app there will be 5 tabs:
