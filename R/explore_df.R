@@ -2,7 +2,7 @@
 #'
 #' @param data A data frame to feed into the Shiny app
 #'
-#' @return
+#' @return Shiny app with data loaded.
 #' @export
 #'
 #' @examples
@@ -199,16 +199,6 @@ explore_df <- function(data) {
 
   )
 
-  # Define server logic required to draw a histogram
-#' Title
-#'
-#' @param input
-#' @param output
-#'
-#' @return
-#' @export
-#'
-#' @examples
   server <- function(input, output) {
 
 
@@ -685,7 +675,7 @@ explore_df <- function(data) {
     })
 
     output$pps_plot <- shiny::renderPlot({
-      ggcorr_plot::ggcorr_plot(pps_matrix(),
+      ggcorrplot::ggcorrplot(pps_matrix(),
                              title = "Predictive Power Score Plot of Data",
                              show.legend = FALSE,
                              type = "upper",
@@ -700,7 +690,7 @@ explore_df <- function(data) {
     )
 
     output$corr_plot <- shiny::renderPlot({
-      ggcorr_plot::ggcorr_plot(corr_matrix(),
+      ggcorrplot::ggcorrplot(corr_matrix(),
                              title = "Correlation Plot of Data",
                              colors = c("blue", "white", "orange"),
                              hc.order = TRUE,

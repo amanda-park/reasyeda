@@ -43,7 +43,7 @@ data(penguins, package = "modeldata")
 #explore_df(penguins)
 ```
 
-Upon opening the shiny app there will be 5 tabs:
+Upon opening the Shiny app there will be 5 tabs:
 
 * Visualization
 * Transformations

@@ -2,22 +2,18 @@
 % Please edit documentation in R/explore_df.R
 \name{explore_df}
 \alias{explore_df}
-\title{Shiny EDA App}
+\title{Explore your data frame in an EDA Shiny App.}
 \usage{
 explore_df(data)
 }
 \arguments{
 \item{data}{A data frame to feed into the Shiny app}
-
-\item{output}{}
 }
 \value{
-
-
-
+Shiny app with data loaded.
 }
 \description{
-Shiny EDA App
+Explore your data frame in an EDA Shiny App.
 }
 \examples{
 #data(penguins, package = "modeldata")
